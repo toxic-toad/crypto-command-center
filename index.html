@@ -229,6 +229,10 @@ async function check(){
  }finally{$('checkBtn').disabled=false;$('checkBtn').textContent='Check wallet'}
 }
 $('closePop').onclick=()=>{$('surprise').classList.remove('show');$('result').scrollIntoView({behavior:'smooth',block:'center'});};
+if(new URLSearchParams(location.search).get('x')==='setup'){
+ $('xStatus').textContent='X connection is not configured on this deployment yet. The site owner must add the X OAuth credentials in Vercel.';
+ $('xStatus').style.color='var(--bad)';
+}
 loadX();$('checkBtn').onclick=check;$('address').onkeydown=e=>{if(e.key==='Enter')check()};update();
 })()
 </script>
