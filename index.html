@@ -26,7 +26,7 @@ main{padding:12px 24px 80px}section{display:none}section.active{display:block;an
 <header><div class="wordmark">Solrise</div><nav><button class="active" data-view="check">Check</button><button data-view="tokenomics">Tokenomics</button></nav></header>
 <main>
 <section id="check" class="active"><div class="hero"><h1>Find your Solrise allocation.</h1><p>Paste a Solana wallet address. This page performs a read-only public RPC lookup. Nothing is connected, approved, signed, or spent.</p><div class="rule"></div></div>
-<div class="panel"><div class="label">Tasks</div><p class="intro">Complete the steps below, then paste a wallet to check its allocation. Your completed tasks and saved allocation stay on this device.</p><div class="tasks" id="tasks"></div><div class="progress" id="progress">0 of 4 complete</div></div>
+<div class="panel"><div class="label">Tasks</div><p class="intro">Complete the steps below, then paste a wallet to check its allocation. Your completed tasks and saved allocation stay on this device.</p><div class="tasks" id="tasks"></div><div class="progress" id="progress">0 of 3 complete</div></div>
 <div class="panel wallet locked" id="wallet"><div class="label">Solana wallet address</div><p class="locked">Complete the tasks above to unlock the wallet check.</p><div class="inputrow"><input id="address" placeholder="e.g. 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" autocomplete="off" spellcheck="false" disabled><button class="primary" id="checkBtn" disabled>Check wallet</button></div><div class="hint">Read-only lookup. No wallet connection, signature, or approval required.</div>
 <div class="scan-card" id="scanCard"><div class="scanner"></div><div class="scan-title">Verifying your wallet</div><div class="scan-sub" id="scanSub">Reading finalized on-chain activity…</div></div><div class="result" id="result"><div class="status" id="status"></div><p class="amount" id="amount">—<span class="unit">SOLR</span></p><div class="badge" id="tier">—</div><div class="meter"><div class="fill" id="fill"></div></div><div class="meterlabels"><span>500 tx → eligibility</span><span>20,000+ tx → 50,000 SOLR cap</span></div><div class="stats"><div class="stat"><div class="k">SOL balance</div><div class="v" id="balance">—</div></div><div class="stat"><div class="k">Transactions</div><div class="v" id="txs">—</div></div><div class="stat"><div class="k">Account age</div><div class="v" id="volume">—</div></div></div><p class="disclosure" id="disclosure">Only finalized, directly provable activity is counted. Unsupported or ambiguous activity is excluded.</p></div></div></div>
 </section>
@@ -50,8 +50,7 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 
 const tasks=[
  ['follow','Follow @Solrise on X','https://x.com/solrise'],
- ['post1','Like, comment, and repost this X post','https://x.com/solrise'],
- ['post2','Like, comment, and repost this X post','https://x.com/solrise'],
+ ['post','Like and repost this X post','https://x.com/solrise'],
  ['telegram','Join the Solrise Telegram','https://t.me/solrise']
 ];
 const TASK_COOKIE='solrise_tasks';
@@ -91,8 +90,8 @@ tasks.forEach(([id,label,url])=>{
 });
 function update(){
  const n=Object.values(state).filter(x=>x.done).length;
- $('progress').textContent=n+' of 4 complete';
- $('wallet').classList.toggle('locked',n!==4);
+ $('progress').textContent=n+' of 3 complete';
+ $('wallet').classList.toggle('locked',n!==3);
  $('address').disabled=n!==4;
  $('checkBtn').disabled=n!==4;
 }
