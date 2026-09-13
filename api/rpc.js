@@ -1,4 +1,4 @@
-const RPCS=['https://api.mainnet-beta.solana.com','https://solana-mainnet.g.alchemy.com/v2/demo'];
+const RPCS=['https://api.mainnet-beta.solana.com','https://solana-rpc.publicnode.com'];
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
