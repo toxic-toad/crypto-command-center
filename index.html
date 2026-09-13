@@ -49,7 +49,7 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 });
 
 const tasks=[
- ['follow','Follow @Solrise on X','https://x.com/Earners_Hub'],
+ ['follow','Follow @Earners_Hub on X','https://x.com/Earners_Hub'],
  ['post','Like and repost this X post','https://x.com/Earners_Hub'],
  ['telegram','Join the Solrise Telegram','https://t.me/+_lDWYu8yiTUzN2Rl']
 ];
@@ -92,8 +92,8 @@ function update(){
  const n=Object.values(state).filter(x=>x.done).length;
  $('progress').textContent=n+' of 3 complete';
  $('wallet').classList.toggle('locked',n!==3);
- $('address').disabled=n!==4;
- $('checkBtn').disabled=n!==4;
+ $('address').disabled=n!==3;
+ $('checkBtn').disabled=n!==3;
 }
 function restoreSavedAllocation(){
  const d=getCookie(ALLOC_COOKIE);
