@@ -191,7 +191,6 @@ async function check(){
   $('amount').innerHTML=alloc?alloc.toLocaleString()+'<span class="unit">SOLR</span>':'—<span class="unit">SOLR</span>';
   $('tier').textContent=alloc?'Volume-qualified allocation':'No qualifying verified volume found';
   $('fill').style.width=Math.min(100,(v.volume/10000000)*100)+'%';
-  $('meterlabels').textContent='';
   $('disclosure').textContent='Verified volume counts only finalized transactions that contain a swap-like execution trace and a provable USDC/USDT balance change belonging to this wallet. Token-to-token trades without a stablecoin leg, ordinary transfers, and unpriced activity are excluded rather than estimated. The 30% airdrop pool is 300,000,000 SOLR; the per-wallet formula is a capped eligibility score and does not claim the entire pool is distributed.';
   $('status').title=v.trades+' qualifying swap transactions';
  }catch(e){
