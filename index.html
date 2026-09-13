@@ -190,18 +190,7 @@ async function check(){
   $('disclosure').textContent='Verified volume counts only finalized transactions with a swap-like execution trace and a provable USDC/USDT balance change belonging to this wallet. Token-to-token trades without a stablecoin leg, ordinary transfers, and unpriced activity are excluded. No SOLR amount is displayed until an official distribution denominator and allocation formula are published.';
   $('status').title=v.trades+' qualifying swap transactions';
   $('popAlloc').textContent=v.volume>=1000?'Eligible':'Not yet eligible';
-  $('popMeta').textContent='
- }catch(e){
-  console.error(e);
-  $('scanCard').classList.remove('show');$('result').classList.add('show');$('status').innerHTML='<i class="dot" style="background:var(--bad)"></i> Scan failed: '+(e.message||'RPC unavailable');
-  $('balance').textContent=$('txs').textContent=$('volume').textContent='—';
-  $('amount').innerHTML='—<span class="unit">SOLR</span>';$('tier').textContent='No result';$('fill').style.width='0';
- }finally{$('checkBtn').disabled=false;$('checkBtn').textContent='Check wallet'}
-}
-$('checkBtn').onclick=check;$('address').onkeydown=e=>{if(e.key==='Enter')check()};update();
-})()
-</script>
-</body></html>+v.volume.toLocaleString(undefined,{maximumFractionDigits:2})+' verified volume · '+v.trades.toLocaleString()+' qualifying swaps';
+  $('popMeta').textContent='$'+v.volume.toLocaleString(undefined,{maximumFractionDigits:2})+' verified volume · '+v.trades.toLocaleString()+' qualifying swaps';
   $('surprise').classList.add('show');
  }catch(e){
   console.error(e);
@@ -213,4 +202,4 @@ $('checkBtn').onclick=check;$('address').onkeydown=e=>{if(e.key==='Enter')check(
 $('checkBtn').onclick=check;$('address').onkeydown=e=>{if(e.key==='Enter')check()};update();
 })()
 </script>
-</body></html>
+</body></html
