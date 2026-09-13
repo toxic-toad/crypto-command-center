@@ -63,6 +63,7 @@ async function loadX(){
   const j=await r.json();
   if(j.authenticated){
    xUser=j.user;
+   update();
    $('xConnect').textContent='@'+xUser.username;
    $('xConnect').classList.add('connected');
    $('xStatus').textContent='Connected as @'+xUser.username+'. Returning users can restore a previous allocation automatically.';
@@ -152,17 +153,6 @@ async function allSignatures(address,onProgress){
  }
  return {count:total,oldestBlockTime};
 }
-async function batchTransactions(sigs){
- const out=[];
- for(let i=0;i<sigs.length;i+=20){
-  const req=sigs.slice(i,i+20).map((signature,j)=>({jsonrpc:'2.0',id:j,method:'getTransaction',params:[signature,{commitment:'finalized',encoding:'jsonParsed',maxSupportedTransactionVersion:0}]}));
-  const r=await fetch(RPC,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(req)});
-  if(!r.ok)throw Error('RPC '+r.status);
-  const arr=await r.json();
-  out.push(...arr.map(x=>x.result).filter(Boolean));
- }
- return out;
-}
 function txTier(count,ageDays){
  if(count<500)return {name:'Not eligible',base:0};
  if(count<1000)return {name:'Deckhand',base:1875};
@@ -201,7 +191,7 @@ async function check(){
  if(!valid(a)){
   $('scanCard').classList.remove('show');$('result').classList.add('show');
   $('status').innerHTML='<i class="dot" style="background:var(--bad)"></i>Invalid Solana address format.';
-  $('amount').innerHTML=result.provisional>0?result.provisional.toLocaleString()+'<span class="unit">SOLR</span>':'—<span class="unit">SOLR</span>';$('tier').textContent='—';$('fill').style.width='0';
+  $('amount').innerHTML='—<span class="unit">SOLR</span>';$('tier').textContent='—';$('fill').style.width='0';
   return;
  }
  $('checkBtn').disabled=true;$('checkBtn').textContent='Scanning…';
