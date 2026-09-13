@@ -8,7 +8,7 @@ function base64url(buf){return Buffer.from(buf).toString('base64url');}
 export default async function handler(req,res){
   if(req.method!=='GET')return res.status(405).end();
   const clientId=process.env.X_CLIENT_ID;
-  if(!clientId)return res.status(500).send('X OAuth is not configured. Add X_CLIENT_ID in Vercel.');
+  if(!clientId)return res.redirect('/?x=setup');
   const redirect=process.env.X_REDIRECT_URI||((req.headers['x-forwarded-proto']||'https')+'://'+req.headers.host+'/api/x-callback');
   const state=base64url(crypto.randomBytes(32));
   const verifier=base64url(crypto.randomBytes(48));
