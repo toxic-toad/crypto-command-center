@@ -64,6 +64,7 @@ async function loadX(){
   if(j.authenticated){
    xUser=j.user;
    update();
+   try{const ar=await fetch('/api/x-allocation',{cache:'no-store'});if(ar.ok){const aj=await ar.json();if(aj.allocation)showAllocation(aj.allocation,true);}}catch(e){console.error(e)}
    $('xConnect').textContent='@'+xUser.username;
    $('xConnect').classList.add('connected');
    $('xStatus').textContent='Connected as @'+xUser.username+'. Returning users can restore a previous allocation automatically.';
@@ -72,9 +73,12 @@ async function loadX(){
  }catch(e){console.error(e)}
 }
 $('xConnect').onclick=()=>{ if(xUser)return; location.href='/api/x-login'; };
-function saveAllocation(data){
+async function saveAllocation(data){
  if(!xUser)return;
- try{localStorage.setItem(savedKey(),JSON.stringify(data));}catch(e){}
+ try{
+  localStorage.setItem(savedKey(),JSON.stringify(data));
+  await fetch('/api/x-allocation',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...data,wallet:$('address').value.trim()})});
+ }catch(e){console.error(e)}
 }
 function restoreAllocation(){
  try{
