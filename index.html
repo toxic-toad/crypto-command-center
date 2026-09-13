@@ -28,19 +28,180 @@ main{padding:12px 24px 80px}section{display:none}section.active{display:block;an
 <section id="check" class="active"><div class="hero"><h1>Find your Solrise allocation.</h1><p>Paste a Solana wallet address. This page performs a read-only public RPC lookup. Nothing is connected, approved, signed, or spent.</p><div class="rule"></div></div>
 <div class="panel"><div class="label">Tasks</div><p class="intro">Complete the steps below, then paste a wallet to check its allocation.</p><div class="tasks" id="tasks"></div><div class="progress" id="progress">0 of 4 complete</div></div>
 <div class="panel wallet locked" id="wallet"><div class="label">Solana wallet address</div><p class="locked">Complete the tasks above to unlock the wallet check.</p><div class="inputrow"><input id="address" placeholder="e.g. 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" autocomplete="off" spellcheck="false" disabled><button class="primary" id="checkBtn" disabled>Check wallet</button></div><div class="hint">Read-only lookup. No wallet connection, signature, or approval required.</div>
-<div class="result" id="result"><div class="status" id="status"></div><p class="amount" id="amount">0<span class="unit">SOLR</span></p><div class="badge" id="tier">—</div><div class="meter"><div class="fill" id="fill"></div></div><div class="meterlabels"><span>$1,000 → 1,400 SOLR min</span><span>$10M+ → 50,000 SOLR max</span></div><div class="stats"><div class="stat"><div class="k">SOL balance</div><div class="v" id="balance">—</div></div><div class="stat"><div class="k">Transactions</div><div class="v" id="txs">—</div></div><div class="stat"><div class="k">Qualifying volume</div><div class="v" id="volume">Unavailable</div></div></div><p class="disclosure">Allocation requires verified qualifying volume from the Solrise indexer. Until that backend is connected, the wallet panel shows public RPC data only and does not fabricate an allocation.</p></div></div></div>
+<div class="result" id="result"><div class="status" id="status"></div><p class="amount" id="amount">0<span class="unit">SOLR</span></p><div class="badge" id="tier">—</div><div class="meter"><div class="fill" id="fill"></div></div><div class="meterlabels"><span>$1,000 → eligibility</span><span>$10M+ → 50,000 SOLR cap</span></div><div class="stats"><div class="stat"><div class="k">SOL balance</div><div class="v" id="balance">—</div></div><div class="stat"><div class="k">Transactions</div><div class="v" id="txs">—</div></div><div class="stat"><div class="k">Qualifying volume</div><div class="v" id="volume">Unavailable</div></div></div><p class="disclosure" id="disclosure">Only finalized, directly provable activity is counted. Unsupported or ambiguous activity is excluded.</p></div></div></div>
 </section>
-<section id="tokenomics" class="tk"><h1>Tokenomics</h1><p>How SOLR is split, and how the community allocation is calculated.</p><div class="supply"><strong>1,000,000,000</strong><span>total SOLR supply</span></div><div class="bar" id="bar"></div><div class="legend" id="legend"></div><div class="title">Wallet allocation rules</div><div class="panel"><ul class="rules"><li><span class="rlabel">Community rewards pool</span><span class="rval">250,000,000 SOLR (25%)</span></li><li><span class="rlabel">Minimum allocation</span><span class="rval">1,400 SOLR at $1,000 volume</span></li><li><span class="rlabel">Maximum allocation</span><span class="rval">50,000 SOLR at $10,000,000 volume</span></li><li><span class="rlabel">Formula</span><span class="rval">1,400 + scaled qualifying volume</span></li><li><span class="rlabel">Below $1,000 volume</span><span class="rval">Not yet eligible</span></li><li><span class="rlabel">Required tasks</span><span class="rval">Follow, engage with 2 posts, join Telegram</span></li></ul></div><div class="title">Distribution detail</div><div class="panel"><ul class="rules" id="detail"></ul></div></section>
+<section id="tokenomics" class="tk"><h1>Tokenomics</h1><p>How SOLR is split, and how the community allocation is calculated.</p><div class="supply"><strong>1,000,000,000</strong><span>total SOLR supply</span></div><div class="bar" id="bar"></div><div class="legend" id="legend"></div><div class="title">Wallet allocation rules</div><div class="panel"><ul class="rules"><li><span class="rlabel">Airdrop pool</span><span class="rval">300,000,000 SOLR (30%)</span></li><li><span class="rlabel">Pass-holder pool</span><span class="rval">200,000,000 SOLR (20%)</span></li><li><span class="rlabel">Verified volume</span><span class="rval">Finalized on-chain activity only</span></li><li><span class="rlabel">Eligibility threshold</span><span class="rval">$1,000 verified volume</span></li><li><span class="rlabel">Maximum wallet allocation</span><span class="rval">50,000 SOLR</span></li><li><span class="rlabel">Pass</span><span class="rval">On-chain mint address pending</span></li></ul></div><div class="title">Distribution detail</div><div class="panel"><ul class="rules" id="detail"></ul></div></section>
 </main>
 <script>
-(()=>{const $=id=>document.getElementById(id);
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));$(b.dataset.view).classList.add('active')});
-const tasks=[['follow','Follow @Solrise on X','https://x.com/solrise'],['post1','Like, comment, and repost this X post','https://x.com/solrise'],['post2','Like, comment, and repost this X post','https://x.com/solrise'],['telegram','Join the Solrise Telegram','https://t.me/solrise']];
-const state={};tasks.forEach(([id,label,url])=>{state[id]=false;const e=document.createElement('div');e.className='task';e.innerHTML='<div class="circle"></div><span></span><a class="ext" target="_blank" rel="noopener noreferrer">↗</a>';e.querySelector('span').textContent=label;e.querySelector('a').href=url;e.querySelector('a').onclick=x=>x.stopPropagation();e.onclick=()=>{state[id]=!state[id];e.classList.toggle('done',state[id]);update()};$('tasks').append(e)});function update(){const n=Object.values(state).filter(Boolean).length;$('progress').textContent=n+' of 4 complete';$('wallet').classList.toggle('locked',n!==4);$('address').disabled=n!==4;$('checkBtn').disabled=n!==4}
-const dist=[['Community rewards',25,'linear-gradient(90deg,#ff7a45,#ffc857)'],['Liquidity',20,'#5a7de0'],['Ecosystem & treasury',20,'#6f8f6a'],['Team',15,'#8d8d94'],['Investors',12,'#b06a8f'],['Marketing',8,'#5f5f66']];dist.forEach(d=>{const i=document.createElement('i');i.style.cssText='width:'+d[1]+'%;background:'+d[2];$('bar').append(i);const l=document.createElement('div');l.className='leg';l.innerHTML='<i class="sw"></i><span></span><span class="pct">'+d[1]+'%</span>';l.querySelector('.sw').style.background=d[2];l.querySelector('span').textContent=d[0];$('legend').append(l);const li=document.createElement('li');li.innerHTML='<span class="rlabel"></span><span class="rval">'+(1e9*d[1]/100).toLocaleString()+' SOLR</span>';li.querySelector('.rlabel').textContent=d[0];$('detail').append(li)});
+(()=> {
+const $=id=>document.getElementById(id);
+const RPC='https://api.mainnet-beta.solana.com';
+const USDC='EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+const USDT='Es9vMFrzaCERmJfrF4H2FYD4wQ3j8Y2d8Hh4hJm7xQp';
+const AirdropPool=300000000;
+const PassPool=200000000;
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+ b.classList.add('active');
+ document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+ $(b.dataset.view).classList.add('active');
+});
+
+const tasks=[
+ ['follow','Follow @Solrise on X','https://x.com/solrise'],
+ ['post1','Like, comment, and repost this X post','https://x.com/solrise'],
+ ['post2','Like, comment, and repost this X post','https://x.com/solrise'],
+ ['telegram','Join the Solrise Telegram','https://t.me/solrise']
+];
+const state={};
+tasks.forEach(([id,label,url])=>{
+ state[id]=false;
+ const e=document.createElement('div');
+ e.className='task';
+ e.innerHTML='<div class="circle"></div><span></span><a class="ext" target="_blank" rel="noopener noreferrer">↗</a>';
+ e.querySelector('span').textContent=label;
+ e.querySelector('a').href=url;
+ e.querySelector('a').onclick=x=>x.stopPropagation();
+ e.onclick=()=>{state[id]=!state[id];e.classList.toggle('done',state[id]);update()};
+ $('tasks').append(e);
+});
+function update(){
+ const n=Object.values(state).filter(Boolean).length;
+ $('progress').textContent=n+' of 4 complete';
+ $('wallet').classList.toggle('locked',n!==4);
+ $('address').disabled=n!==4;
+ $('checkBtn').disabled=n!==4;
+}
+
+const dist=[
+ ['Airdrop pool',30,'linear-gradient(90deg,#ff7a45,#ffc857)',AirdropPool],
+ ['Pass holders',20,'#5a7de0',PassPool],
+ ['Remaining / not specified',50,'#34343a',500000000]
+];
+dist.forEach(d=>{
+ const i=document.createElement('i');i.style.cssText='width:'+d[1]+'%;background:'+d[2];$('bar').append(i);
+ const l=document.createElement('div');l.className='leg';
+ l.innerHTML='<i class="sw"></i><span></span><span class="pct">'+d[1]+'%</span>';
+ l.querySelector('.sw').style.background=d[2];l.querySelector('span').textContent=d[0];$('legend').append(l);
+ const li=document.createElement('li');li.innerHTML='<span class="rlabel"></span><span class="rval">'+d[3].toLocaleString()+' SOLR</span>';
+ li.querySelector('.rlabel').textContent=d[0];$('detail').append(li);
+});
+
 function valid(a){return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a.trim())}
-async function rpc(method,params){const r=await fetch('https://api.mainnet-beta.solana.com',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});if(!r.ok)throw Error('RPC '+r.status);const j=await r.json();if(j.error)throw Error(j.error.message);return j.result}
-async function check(){const a=$('address').value.trim();$('result').classList.add('show');if(!valid(a)){$('status').innerHTML='<i class="dot" style="background:var(--bad)"></i>Invalid Solana address format.';$('amount').innerHTML='0<span class="unit">SOLR</span>';$('tier').textContent='—';$('fill').style.width='0';$('balance').textContent=$('txs').textContent='—';$('volume').textContent='Unavailable';return}$('checkBtn').disabled=true;$('checkBtn').textContent='Checking…';$('status').innerHTML='<i class="dot" style="background:var(--muted)"></i> Reading public Solana RPC…';try{const [b,s]=await Promise.all([rpc('getBalance',[a]),rpc('getSignaturesForAddress',[a,{limit:1000}])]);$('status').innerHTML='<i class="dot"></i> Live on-chain snapshot for '+a.slice(0,4)+'…'+a.slice(-4);$('balance').textContent=(b.value/1e9).toFixed(4)+' SOL';$('txs').textContent=s.length.toLocaleString();$('volume').textContent='Unavailable';$('amount').innerHTML='—<span class="unit">SOLR</span>';$('tier').textContent='Awaiting verified volume';$('fill').style.width='0'}catch(e){$('status').innerHTML='<i class="dot" style="background:var(--bad)"></i> Could not read Solana RPC right now.';$('balance').textContent=$('txs').textContent='—'}finally{$('checkBtn').disabled=false;$('checkBtn').textContent='Check wallet'}}
-$('checkBtn').onclick=check;$('address').onkeydown=e=>{if(e.key==='Enter')check()};update()})()
+async function rpc(method,params){
+ const r=await fetch(RPC,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});
+ if(!r.ok)throw Error('RPC '+r.status);
+ const j=await r.json();if(j.error)throw Error(j.error.message);return j.result;
+}
+async function allSignatures(address,onProgress){
+ let before=null,total=0,last=null;
+ while(true){
+  const cfg={limit:1000,commitment:'finalized'};if(before)cfg.before=before;
+  const page=await rpc('getSignaturesForAddress',[address,cfg]);
+  if(!page.length)break;
+  const good=page.filter(x=>!x.err).map(x=>x.signature);
+  total+=good.length;last=page[page.length-1].signature;
+  onProgress(total);
+  if(page.length<1000)break;
+  before=last;
+ }
+ return total;
+}
+async function batchTransactions(sigs){
+ const out=[];
+ for(let i=0;i<sigs.length;i+=20){
+  const req=sigs.slice(i,i+20).map((signature,j)=>({jsonrpc:'2.0',id:j,method:'getTransaction',params:[signature,{commitment:'finalized',encoding:'jsonParsed',maxSupportedTransactionVersion:0}]}));
+  const r=await fetch(RPC,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(req)});
+  if(!r.ok)throw Error('RPC '+r.status);
+  const arr=await r.json();
+  out.push(...arr.map(x=>x.result).filter(Boolean));
+ }
+ return out;
+}
+function stableDelta(tx,wallet){
+ const balances=new Map();
+ const pre=tx.meta?.preTokenBalances||[], post=tx.meta?.postTokenBalances||[];
+ for(const x of pre){
+  if(x.owner===wallet && (x.mint===USDC||x.mint===USDT)) balances.set(x.mint,(balances.get(x.mint)||0)-Number(x.uiTokenAmount.uiAmountString||0));
+ }
+ for(const x of post){
+  if(x.owner===wallet && (x.mint===USDC||x.mint===USDT)) balances.set(x.mint,(balances.get(x.mint)||0)+Number(x.uiTokenAmount.uiAmountString||0));
+ }
+ return Math.max(...[...balances.values()].map(Math.abs),0);
+}
+function looksLikeSwap(tx){
+ const logs=(tx.meta?.logMessages||[]).join(' ').toLowerCase();
+ return /swap|route|whirlpool|raydium|orca|jupiter|amm/.test(logs);
+}
+function calculateVolume(txs,wallet){
+ let volume=0,trades=0;
+ for(const tx of txs){
+  if(!tx?.meta || tx.meta.err || !looksLikeSwap(tx))continue;
+  const usd=stableDelta(tx,wallet);
+  if(usd>0){volume+=usd;trades++}
+ }
+ return {volume,trades};
+}
+function allocation(volume){
+ // Conservative, transparent rule: 30% pool is the airdrop pool.
+ // We never invent a global denominator; allocation is a published score
+ // based only on verified wallet volume, capped at 50,000 SOLR.
+ if(volume<=0)return 0;
+ const min=1000,max=10000000,minAlloc=1400,maxAlloc=50000;
+ if(volume<min)return 0;
+ const ratio=Math.min(1,(volume-min)/(max-min));
+ return Math.round(minAlloc+ratio*(maxAlloc-minAlloc));
+}
+async function check(){
+ const a=$('address').value.trim();
+ $('result').classList.add('show');
+ if(!valid(a)){
+  $('status').innerHTML='<i class="dot" style="background:var(--bad)"></i>Invalid Solana address format.';
+  $('amount').innerHTML='—<span class="unit">SOLR</span>';$('tier').textContent='—';$('fill').style.width='0';
+  return;
+ }
+ $('checkBtn').disabled=true;$('checkBtn').textContent='Scanning…';
+ $('status').innerHTML='<i class="dot" style="background:var(--muted)"></i> Reading finalized Solana history…';
+ try{
+  const [bal,sigs]=await Promise.all([
+   rpc('getBalance',[a,{commitment:'finalized'}]),
+   (async()=>{const n=await allSignatures(a,n=>{$('status').innerHTML='<i class="dot" style="background:var(--muted)"></i> Found '+n.toLocaleString()+' confirmed transactions…'});return n})()
+  ]);
+  // Re-fetch signatures for parsing, paginated, with the same finalized boundary.
+  let before=null, all=[];
+  while(true){
+   const cfg={limit:1000,commitment:'finalized'};if(before)cfg.before=before;
+   const page=await rpc('getSignaturesForAddress',[a,cfg]);
+   all.push(...page.filter(x=>!x.err).map(x=>x.signature));
+   if(page.length<1000)break;
+   before=page[page.length-1].signature;
+  }
+  let parsed=0,txs=[];
+  for(let i=0;i<all.length;i+=100){
+   const batch=await batchTransactions(all.slice(i,i+100));
+   txs.push(...batch);parsed+=batch.length;
+   $('status').innerHTML='<i class="dot" style="background:var(--muted)"></i> Verifying '+parsed.toLocaleString()+' / '+all.length.toLocaleString()+' transactions…';
+  }
+  const v=calculateVolume(txs,a), alloc=allocation(v.volume);
+  $('status').innerHTML='<i class="dot"></i> Finalized on-chain scan complete';
+  $('balance').textContent=(bal.value/1e9).toFixed(4)+' SOL';
+  $('txs').textContent=all.length.toLocaleString();
+  $('volume').textContent='$'+v.volume.toLocaleString(undefined,{maximumFractionDigits:2});
+  $('amount').innerHTML=alloc?alloc.toLocaleString()+'<span class="unit">SOLR</span>':'—<span class="unit">SOLR</span>';
+  $('tier').textContent=alloc?'Volume-qualified allocation':'No qualifying verified volume found';
+  $('fill').style.width=Math.min(100,(v.volume/10000000)*100)+'%';
+  $('meterlabels').textContent='';
+  $('disclosure').textContent='Verified volume counts only finalized transactions that contain a swap-like execution trace and a provable USDC/USDT balance change belonging to this wallet. Token-to-token trades without a stablecoin leg, ordinary transfers, and unpriced activity are excluded rather than estimated. The 30% airdrop pool is 300,000,000 SOLR; the per-wallet formula is a capped eligibility score and does not claim the entire pool is distributed.';
+  $('status').title=v.trades+' qualifying swap transactions';
+ }catch(e){
+  console.error(e);
+  $('status').innerHTML='<i class="dot" style="background:var(--bad)"></i> Scan failed: '+(e.message||'RPC unavailable');
+  $('balance').textContent=$('txs').textContent=$('volume').textContent='—';
+  $('amount').innerHTML='—<span class="unit">SOLR</span>';$('tier').textContent='No result';$('fill').style.width='0';
+ }finally{$('checkBtn').disabled=false;$('checkBtn').textContent='Check wallet'}
+}
+$('checkBtn').onclick=check;$('address').onkeydown=e=>{if(e.key==='Enter')check()};update();
+})()
 </script>
 </body></html>
