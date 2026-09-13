@@ -75,9 +75,11 @@ function update(){
 }
 
 const dist=[
- ['Airdrop pool',30,'linear-gradient(90deg,#ff7a45,#ffc857)',AirdropPool],
- ['Pass holders',20,'#5a7de0',PassPool],
- ['Remaining / not specified',50,'#34343a',500000000]
+ ['Airdrop pool',30,'linear-gradient(90deg,#ff7a45,#ffc857)',300000000],
+ ['Pass holders',20,'#5a7de0',200000000],
+ ['Liquidity',25,'#6f8f6a',250000000],
+ ['Team',15,'#8d8d94',150000000],
+ ['Other / community & ecosystem',10,'#b06a8f',100000000]
 ];
 dist.forEach(d=>{
  const i=document.createElement('i');i.style.cssText='width:'+d[1]+'%;background:'+d[2];$('bar').append(i);
