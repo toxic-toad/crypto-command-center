@@ -14,7 +14,7 @@ nav{display:flex;gap:4px;background:var(--p);border:1px solid var(--line);border
 main{padding:12px 24px 80px}section{display:none}section.active{display:block;animation:rise .35s ease}@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .hero{padding:20px 0 8px}.hero h1,.tk h1{font:500 clamp(34px,6vw,48px)/1.08 Georgia,serif;margin:0 0 14px;max-width:15ch}.hero p,.tk p{color:var(--muted);max-width:52ch;margin:0}.rule{height:2px;width:64px;margin:22px 0 30px;background:linear-gradient(90deg,var(--sun1),var(--sun2));border-radius:2px}
 .panel{background:var(--p);border:1px solid var(--line);border-radius:18px;padding:26px}.panel+.panel{margin-top:16px}.label{font-size:13px;color:var(--muted);margin-bottom:10px}.intro{color:var(--muted);font-size:13.5px;margin:0 0 16px}
-.tasks{display:grid;gap:10px}.task{display:flex;align-items:center;gap:14px;background:#0e0e11;border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer}.task.done{border-color:#33452f;background:#101410}.circle{width:20px;height:20px;border:1.5px solid var(--line);border-radius:50%;display:grid;place-items:center;flex:none}.done .circle{background:var(--ok);border-color:var(--ok)}.circle:after{content:'✓';font-size:12px;color:#0b0b0d;opacity:0}.done .circle:after{opacity:1}.task span{flex:1}.ext{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;text-decoration:none;color:var(--muted)}
+.tasks{display:grid;gap:10px}.task{display:flex;align-items:center;gap:12px;background:#0e0e11;border:1px solid var(--line);border-radius:12px;padding:12px 14px}.task.done{border-color:#33452f;background:#101410}.circle{width:20px;height:20px;border:1.5px solid var(--line);border-radius:50%;display:grid;place-items:center;flex:none;background:transparent}.done .circle{background:var(--ok);border-color:var(--ok)}.circle:after{content:'✓';font-size:12px;color:#0b0b0d;opacity:0}.done .circle:after{opacity:1}.task span{flex:1}.ext{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;text-decoration:none;color:var(--muted);flex:none}.complete{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:not-allowed;flex:none}.complete.ready{cursor:pointer;color:var(--text);border-color:#4a4a52}.complete.done{background:var(--ok);border-color:var(--ok);color:#0b0b0d}
 .progress,.hint,.disclosure{font-size:12.5px;color:var(--muted);margin-top:14px}.wallet.locked .locked{display:block}.locked{display:none}.wallet.locked .inputrow{opacity:.4;pointer-events:none}
 .inputrow{display:flex;gap:10px}input{min-width:0;flex:1;background:#0e0e11;border:1px solid var(--line);color:var(--text);padding:14px 16px;border-radius:12px;outline:0}input:focus{border-color:#4a4a52}button.primary{border:0;background:var(--text);color:#0b0b0d;border-radius:12px;padding:0 22px;font-weight:600;cursor:pointer}button.primary:disabled{opacity:.5;cursor:default}
 .result{display:none;margin-top:18px}.result.show{display:block}.status{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px;margin-bottom:20px}.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}.amount{font:500 clamp(40px,7vw,56px)/1 Georgia,serif;margin:0}.unit{font:500 .4em Inter,sans-serif;color:var(--muted);margin-left:6px}.badge{display:inline-block;margin-top:14px;padding:5px 12px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12.5px}.meter{height:6px;background:#0e0e11;border:1px solid var(--line);border-radius:4px;margin:22px 0 6px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--sun1),var(--sun2));transition:width .5s}.meterlabels{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:22px}.stat{background:var(--p2);padding:16px 14px}.k{font-size:12px;color:var(--muted);margin-bottom:6px}.v{font-weight:500;font-variant-numeric:tabular-nums}
@@ -35,7 +35,7 @@ main{padding:12px 24px 80px}section{display:none}section.active{display:block;an
 <script>
 (()=> {
 const $=id=>document.getElementById(id);
-const RPC='https://api.mainnet-beta.solana.com';
+const RPC='/api/rpc';
 const USDC='EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 const USDT='Es9vMFrzaCERmJfrF4H2FYD4wQ3j8Y2d8Hh4hJm7xQp';
 const AirdropPool=300000000;
@@ -56,14 +56,15 @@ const tasks=[
 ];
 const state={};
 tasks.forEach(([id,label,url])=>{
- state[id]=false;
+ state[id]={opened:false,done:false};
  const e=document.createElement('div');
  e.className='task';
- e.innerHTML='<div class="circle"></div><span></span><a class="ext" target="_blank" rel="noopener noreferrer">↗</a>';
+ e.innerHTML='<div class="circle"></div><span></span><a class="ext" target="_blank" rel="noopener noreferrer" aria-label="Open task">↗</a><button class="complete" type="button" aria-label="Mark task complete" disabled>✓</button>';
  e.querySelector('span').textContent=label;
- e.querySelector('a').href=url;
- e.querySelector('a').onclick=x=>x.stopPropagation();
- e.onclick=()=>{state[id]=!state[id];e.classList.toggle('done',state[id]);update()};
+ const link=e.querySelector('a'); link.href=url;
+ link.onclick=()=>{state[id].opened=true;const b=e.querySelector('.complete');b.disabled=false;b.classList.add('ready');b.title='Return here and mark complete';};
+ const complete=e.querySelector('.complete');
+ complete.onclick=()=>{if(!state[id].opened)return;state[id].done=!state[id].done;e.classList.toggle('done',state[id].done);complete.classList.toggle('done',state[id].done);update()};
  $('tasks').append(e);
 });
 function update(){
@@ -145,16 +146,7 @@ function calculateVolume(txs,wallet){
  }
  return {volume,trades};
 }
-function allocation(volume){
- // Conservative, transparent rule: 30% pool is the airdrop pool.
- // We never invent a global denominator; allocation is a published score
- // based only on verified wallet volume, capped at 50,000 SOLR.
- if(volume<=0)return 0;
- const min=1000,max=10000000,minAlloc=1400,maxAlloc=50000;
- if(volume<min)return 0;
- const ratio=Math.min(1,(volume-min)/(max-min));
- return Math.round(minAlloc+ratio*(maxAlloc-minAlloc));
-}
+function allocation(volume){return volume>=1000?1:0;}
 async function check(){
  const a=$('address').value.trim();
  $('result').classList.add('show');
@@ -190,10 +182,10 @@ async function check(){
   $('balance').textContent=(bal.value/1e9).toFixed(4)+' SOL';
   $('txs').textContent=all.length.toLocaleString();
   $('volume').textContent='$'+v.volume.toLocaleString(undefined,{maximumFractionDigits:2});
-  $('amount').innerHTML=alloc?alloc.toLocaleString()+'<span class="unit">SOLR</span>':'—<span class="unit">SOLR</span>';
-  $('tier').textContent=alloc?'Volume-qualified allocation':'No qualifying verified volume found';
+  $('amount').innerHTML='—<span class="unit">SOLR</span>';
+  $('tier').textContent=alloc?'Volume-qualified eligibility':'No qualifying verified volume found';
   $('fill').style.width=Math.min(100,(v.volume/10000000)*100)+'%';
-  $('disclosure').textContent='Verified volume counts only finalized transactions that contain a swap-like execution trace and a provable USDC/USDT balance change belonging to this wallet. Token-to-token trades without a stablecoin leg, ordinary transfers, and unpriced activity are excluded rather than estimated. The 30% airdrop pool is 300,000,000 SOLR; the per-wallet formula is a capped eligibility score and does not claim the entire pool is distributed.';
+  $('disclosure').textContent='Verified volume counts only finalized transactions with a swap-like execution trace and a provable USDC/USDT balance change belonging to this wallet. Token-to-token trades without a stablecoin leg, ordinary transfers, and unpriced activity are excluded. No SOLR amount is displayed until an official distribution denominator and allocation formula are published.';
   $('status').title=v.trades+' qualifying swap transactions';
  }catch(e){
   console.error(e);
