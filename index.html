@@ -123,38 +123,29 @@ async function batchTransactions(sigs){
  }
  return out;
 }
-function stableDelta(tx,wallet){
- const balances=new Map();
- const pre=tx.meta?.preTokenBalances||[], post=tx.meta?.postTokenBalances||[];
- for(const x of pre){
-  if(x.owner===wallet && (x.mint===USDC||x.mint===USDT)) balances.set(x.mint,(balances.get(x.mint)||0)-Number(x.uiTokenAmount.uiAmountString||0));
- }
- for(const x of post){
-  if(x.owner===wallet && (x.mint===USDC||x.mint===USDT)) balances.set(x.mint,(balances.get(x.mint)||0)+Number(x.uiTokenAmount.uiAmountString||0));
- }
- return Math.max(...[...balances.values()].map(Math.abs),0);
+function txTier(count){
+ if(count>=10000)return {name:'Voyager',mult:6.6666666667};
+ if(count>=5000)return {name:'Captain',mult:4};
+ if(count>=2000)return {name:'Navigator',mult:2};
+ if(count>=500)return {name:'Deckhand',mult:1};
+ if(count>=100)return {name:'Crew',mult:.5};
+ if(count>=20)return {name:'Sailor',mult:.25};
+ return {name:'Not eligible',mult:0};
 }
-function looksLikeSwap(tx){
- const logs=(tx.meta?.logMessages||[]).join(' ').toLowerCase();
- return /swap|route|whirlpool|raydium|orca|jupiter|amm/.test(logs);
+function allocationFromTransactions(count){
+ // 300M airdrop pool / 40,000 planned eligible wallets = 7,500 base.
+ // Transaction-count tiers scale that base; this is deterministic, not random.
+ // Final distribution must be normalized against the actual signup set before claim.
+ const tier=txTier(count);
+ return {tier,provisional:Math.min(50000,Math.round(7500*tier.mult))};
 }
-function calculateVolume(txs,wallet){
- let volume=0,trades=0;
- for(const tx of txs){
-  if(!tx?.meta || tx.meta.err || !looksLikeSwap(tx))continue;
-  const usd=stableDelta(tx,wallet);
-  if(usd>0){volume+=usd;trades++}
- }
- return {volume,trades};
-}
-function allocation(volume){return volume>=1000?1:0;}
 async function check(){
  const a=$('address').value.trim();
  $('result').classList.remove('show');$('scanCard').classList.add('show');$('scanSub').textContent='Reading finalized on-chain activity…';
  if(!valid(a)){
   $('scanCard').classList.remove('show');$('result').classList.add('show');
   $('status').innerHTML='<i class="dot" style="background:var(--bad)"></i>Invalid Solana address format.';
-  $('amount').innerHTML='—<span class="unit">SOLR</span>';$('tier').textContent='—';$('fill').style.width='0';
+  $('amount').innerHTML=result.provisional>0?result.provisional.toLocaleString()+'<span class="unit">SOLR</span>':'—<span class="unit">SOLR</span>';$('tier').textContent='—';$('fill').style.width='0';
   return;
  }
  $('checkBtn').disabled=true;$('checkBtn').textContent='Scanning…';
@@ -173,24 +164,20 @@ async function check(){
    if(page.length<1000)break;
    before=page[page.length-1].signature;
   }
-  let parsed=0,txs=[];
-  for(let i=0;i<all.length;i+=100){
-   const batch=await batchTransactions(all.slice(i,i+100));
-   txs.push(...batch);parsed+=batch.length;
-   $('status').innerHTML='<i class="dot" style="background:var(--muted)"></i> Verifying '+parsed.toLocaleString()+' / '+all.length.toLocaleString()+' transactions…';$('scanSub').textContent='Verifying '+parsed.toLocaleString()+' / '+all.length.toLocaleString()+' transactions…';
-  }
-  const v=calculateVolume(txs,a), alloc=allocation(v.volume);
+  $('scanSub').textContent='Counting finalized transactions…';
+  const count=all.length;
+  const result=allocationFromTransactions(count);
   $('scanCard').classList.remove('show');$('result').classList.add('show');$('status').innerHTML='<i class="dot"></i> Finalized on-chain scan complete';
   $('balance').textContent=(bal.value/1e9).toFixed(4)+' SOL';
   $('txs').textContent=all.length.toLocaleString();
-  $('volume').textContent='$'+v.volume.toLocaleString(undefined,{maximumFractionDigits:2});
+  $('volume').textContent='Not used';
   $('amount').innerHTML='—<span class="unit">SOLR</span>';
-  $('tier').textContent=v.volume>=1000?'Volume-qualified eligibility':'No qualifying verified volume found';
-  $('fill').style.width=Math.min(100,(v.volume/10000000)*100)+'%';
-  $('disclosure').textContent='Verified volume counts only finalized transactions with a swap-like execution trace and a provable USDC/USDT balance change belonging to this wallet. Token-to-token trades without a stablecoin leg, ordinary transfers, and unpriced activity are excluded. No SOLR amount is displayed until an official distribution denominator and allocation formula are published.';
-  $('status').title=v.trades+' qualifying swap transactions';
-  $('popAlloc').textContent=v.volume>=1000?'Eligible':'Not yet eligible';
-  $('popMeta').textContent='$'+v.volume.toLocaleString(undefined,{maximumFractionDigits:2})+' verified volume · '+v.trades.toLocaleString()+' qualifying swaps';
+  $('tier').textContent=result.tier.mult?'Transaction-count tier: '+result.tier.name:'No qualifying transaction count';
+  $('fill').style.width=Math.min(100,(result.provisional/50000)*100)+'%';
+  $('disclosure').textContent='Allocation is based only on this wallet’s finalized transaction count. The 300,000,000 SOLR airdrop pool is modeled against 40,000 planned wallets, giving a 7,500 SOLR base before transaction-count weighting. Final allocations must be normalized against the actual eligible signup set before claims.';
+  $('status').title=count.toLocaleString()+' finalized successful transactions';
+  $('popAlloc').textContent=result.provisional>0?result.provisional.toLocaleString()+' SOLR':'Not eligible';
+  $('popMeta').textContent=count.toLocaleString()+' finalized transactions · '+result.tier.name+' tier';
   $('surprise').classList.add('show');
  }catch(e){
   console.error(e);
