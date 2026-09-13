@@ -28,9 +28,9 @@ main{padding:12px 24px 80px}section{display:none}section.active{display:block;an
 <section id="check" class="active"><div class="hero"><h1>Find your Solrise allocation.</h1><p>Paste a Solana wallet address. This page performs a read-only public RPC lookup. Nothing is connected, approved, signed, or spent.</p><div class="rule"></div></div>
 <div class="panel"><div class="label">Tasks</div><p class="intro">Complete the steps below, then paste a wallet to check its allocation.</p><div class="tasks" id="tasks"></div><div class="progress" id="progress">0 of 4 complete</div></div>
 <div class="panel wallet locked" id="wallet"><div class="label">Solana wallet address</div><p class="locked">Complete the tasks above to unlock the wallet check.</p><div class="inputrow"><input id="address" placeholder="e.g. 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" autocomplete="off" spellcheck="false" disabled><button class="primary" id="checkBtn" disabled>Check wallet</button></div><div class="hint">Read-only lookup. No wallet connection, signature, or approval required.</div>
-<div class="scan-card" id="scanCard"><div class="scanner"></div><div class="scan-title">Verifying your wallet</div><div class="scan-sub" id="scanSub">Reading finalized on-chain activity…</div></div><div class="result" id="result"><div class="status" id="status"></div><p class="amount" id="amount">—<span class="unit">SOLR</span></p><div class="badge" id="tier">—</div><div class="meter"><div class="fill" id="fill"></div></div><div class="meterlabels"><span>20 tx → eligibility</span><span>10,000+ tx → 3,750 SOLR cap</span></div><div class="stats"><div class="stat"><div class="k">SOL balance</div><div class="v" id="balance">—</div></div><div class="stat"><div class="k">Transactions</div><div class="v" id="txs">—</div></div><div class="stat"><div class="k">Qualifying volume</div><div class="v" id="volume">Unavailable</div></div></div><p class="disclosure" id="disclosure">Only finalized, directly provable activity is counted. Unsupported or ambiguous activity is excluded.</p></div></div></div>
+<div class="scan-card" id="scanCard"><div class="scanner"></div><div class="scan-title">Verifying your wallet</div><div class="scan-sub" id="scanSub">Reading finalized on-chain activity…</div></div><div class="result" id="result"><div class="status" id="status"></div><p class="amount" id="amount">—<span class="unit">SOLR</span></p><div class="badge" id="tier">—</div><div class="meter"><div class="fill" id="fill"></div></div><div class="meterlabels"><span>500 tx → eligibility</span><span>20,000+ tx → 50,000 SOLR cap</span></div><div class="stats"><div class="stat"><div class="k">SOL balance</div><div class="v" id="balance">—</div></div><div class="stat"><div class="k">Transactions</div><div class="v" id="txs">—</div></div><div class="stat"><div class="k">Qualifying volume</div><div class="v" id="volume">Unavailable</div></div></div><p class="disclosure" id="disclosure">Only finalized, directly provable activity is counted. Unsupported or ambiguous activity is excluded.</p></div></div></div>
 </section>
-<section id="tokenomics" class="tk"><h1>Tokenomics</h1><p>How SOLR is split, and how the community allocation is calculated.</p><div class="supply"><strong>1,000,000,000</strong><span>total SOLR supply</span></div><div class="bar" id="bar"></div><div class="legend" id="legend"></div><div class="title">Wallet allocation rules</div><div class="panel"><ul class="rules"><li><span class="rlabel">Airdrop pool</span><span class="rval">300,000,000 SOLR (30%)</span></li><li><span class="rlabel">Pass-holder pool</span><span class="rval">200,000,000 SOLR (20%)</span></li><li><span class="rlabel">Allocation metric</span><span class="rval">Finalized successful transaction count</span></li><li><span class="rlabel">Eligibility threshold</span><span class="rval">20 finalized successful transactions</span></li><li><span class="rlabel">Maximum wallet allocation</span><span class="rval">3,750 SOLR</span></li><li><span class="rlabel">Pass</span><span class="rval">On-chain mint address pending</span></li></ul></div><div class="title">Distribution detail</div><div class="panel"><ul class="rules" id="detail"></ul></div></section>
+<section id="tokenomics" class="tk"><h1>Tokenomics</h1><p>How SOLR is split, and how the community allocation is calculated.</p><div class="supply"><strong>1,000,000,000</strong><span>total SOLR supply</span></div><div class="bar" id="bar"></div><div class="legend" id="legend"></div><div class="title">Wallet allocation rules</div><div class="panel"><ul class="rules"><li><span class="rlabel">Airdrop pool</span><span class="rval">300,000,000 SOLR (30%)</span></li><li><span class="rlabel">Pass-holder pool</span><span class="rval">200,000,000 SOLR (20%)</span></li><li><span class="rlabel">Allocation metric</span><span class="rval">Finalized successful transaction count</span></li><li><span class="rlabel">Eligibility threshold</span><span class="rval">500 finalized successful transactions</span></li><li><span class="rlabel">Maximum wallet allocation</span><span class="rval">50,000 SOLR</span></li><li><span class="rlabel">Pass</span><span class="rval">On-chain mint address pending</span></li></ul></div><div class="title">Distribution detail</div><div class="panel"><ul class="rules" id="detail"></ul></div></section>
 </main><div class="surprise" id="surprise"><div class="surprise-card"><div class="surprise-content"><div class="coming">COMING SOON</div><h2>Solrise</h2><p>Your verified allocation has been recorded.</p><div class="alloc-big" id="popAlloc">— SOLR</div><div class="alloc-meta" id="popMeta">Allocation details</div><button class="close-pop" id="closePop">Continue</button></div></div></div>
 <script>
 (()=> {
@@ -104,7 +104,7 @@ async function allSignatures(address,onProgress){
   const cfg={limit:1000,commitment:'finalized'};if(before)cfg.before=before;
   const page=await rpc('getSignaturesForAddress',[address,cfg]);
   if(!page.length)break;
-  const good=page.filter(x=>!x.err).map(x=>x.signature);
+  const good=page.filter(x=>!x.err);
   total+=good.length;last=page[page.length-1].signature;
   onProgress(total);
   if(page.length<1000)break;
@@ -123,18 +123,37 @@ async function batchTransactions(sigs){
  }
  return out;
 }
-function txTier(count){
- if(count>=10000)return {name:'Voyager',allocation:3750};
- if(count>=5000)return {name:'Captain',allocation:3000};
- if(count>=2000)return {name:'Navigator',allocation:2250};
- if(count>=500)return {name:'Deckhand',allocation:1500};
- if(count>=100)return {name:'Crew',allocation:750};
- if(count>=20)return {name:'Sailor',allocation:375};
- return {name:'Not eligible',allocation:0};
+function txTier(count,ageDays){
+ if(count<500)return {name:'Not eligible',base:0};
+ if(count<1000)return {name:'Deckhand',base:1875};
+ if(count<2000)return {name:'Navigator',base:3750};
+ if(count<5000)return {name:'First Mate',base:7500};
+ if(count<10000)return {name:'Captain',base:15000};
+ if(count<20000)return {name:'Admiral',base:25000};
+ return {name:'Voyager',base:50000};
 }
-function allocationFromTransactions(count){
- const tier=txTier(count);
- return {tier,provisional:tier.allocation};
+function ageMultiplier(ageDays){
+ // Older, established wallets receive a modest bonus; new wallets do not get
+ // an automatic high allocation. The multiplier is capped so the 50k ceiling
+ // can never be exceeded.
+ if(ageDays>=730)return 1.20;
+ if(ageDays>=365)return 1.10;
+ if(ageDays>=180)return 1.05;
+ if(ageDays>=90)return 1.00;
+ if(ageDays>=30)return 0.90;
+ return 0.75;
+}
+function allocationFromTransactions(count,ageDays){
+ const tier=txTier(count,ageDays);
+ if(!tier.base)return {tier,provisional:0,multiplier:0};
+ const multiplier=ageMultiplier(ageDays);
+ return {tier,multiplier,provisional:Math.min(50000,Math.round(tier.base*multiplier))};
+}
+function walletAgeDays(signatures){
+ const times=signatures.map(x=>x.blockTime).filter(x=>Number.isFinite(x));
+ if(!times.length)return 0;
+ const oldest=Math.min(...times);
+ return Math.max(0,Math.floor((Date.now()/1000-oldest)/86400));
 }
 async function check(){
  const a=$('address').value.trim();
@@ -157,24 +176,25 @@ async function check(){
   while(true){
    const cfg={limit:1000,commitment:'finalized'};if(before)cfg.before=before;
    const page=await rpc('getSignaturesForAddress',[a,cfg]);
-   all.push(...page.filter(x=>!x.err).map(x=>x.signature));
+   all.push(...page.filter(x=>!x.err));
    if(page.length<1000)break;
    before=page[page.length-1].signature;
   }
   $('scanSub').textContent='Counting finalized transactions…';
   const count=all.length;
-  const result=allocationFromTransactions(count);
+  const ageDays=walletAgeDays(all);
+  const result=allocationFromTransactions(count,ageDays);
   $('scanCard').classList.remove('show');$('result').classList.add('show');$('status').innerHTML='<i class="dot"></i> Finalized on-chain scan complete';
   $('balance').textContent=(bal.value/1e9).toFixed(4)+' SOL';
   $('txs').textContent=all.length.toLocaleString();
-  $('volume').textContent='Not used';
+  $('volume').textContent=Math.floor(ageDays/365)+'y '+Math.floor((ageDays%365)/30)+'m';
   $('amount').innerHTML='—<span class="unit">SOLR</span>';
-  $('tier').textContent=result.tier.mult?'Transaction-count tier: '+result.tier.name:'No qualifying transaction count';
+  $('tier').textContent=result.tier.base?'Transaction tier: '+result.tier.name:'Minimum 500 transactions required';
   $('fill').style.width=Math.min(100,(result.provisional/50000)*100)+'%';
-  $('disclosure').textContent='Allocation is based only on this wallet’s finalized transaction count. The 300,000,000 SOLR airdrop pool uses transaction-count tiers, with a maximum wallet allocation of 3,750 SOLR. Final distribution remains subject to the published eligibility set and claim rules.';
+  $('disclosure').textContent='Allocation uses the wallet’s finalized successful transaction count plus account age. At least 500 successful finalized transactions are required. The second eligible tier is 1,000–1,999 transactions with a 3,750 SOLR base; established wallets receive a modest age multiplier. The maximum wallet allocation is 50,000 SOLR.';
   $('status').title=count.toLocaleString()+' finalized successful transactions';
   $('popAlloc').textContent=result.provisional>0?result.provisional.toLocaleString()+' SOLR':'Not eligible';
-  $('popMeta').textContent=count.toLocaleString()+' finalized transactions · '+result.tier.name+' tier';
+  $('popMeta').textContent=count.toLocaleString()+' finalized transactions · '+Math.floor(ageDays/365)+'y '+Math.floor((ageDays%365)/30)+'m account age · '+result.tier.name+' tier';
   $('surprise').classList.add('show');
  }catch(e){
   console.error(e);
